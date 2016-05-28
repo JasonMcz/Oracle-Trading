@@ -5,6 +5,7 @@ var HistorySchema = new mongoose.Schema({
     tradeID:Number,
     date:Date,
     type:String,
+    rate:String,
     amount:String,
     total:String
 });

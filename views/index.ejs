@@ -11,10 +11,16 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <div ng-app="myApp">
-        <div ng-controller="myCtrl">
+    <div ng-app="oracle">
+        <div ng-controller="MainCtrl">
             <nvd3 options="options" data="data"></nvd3>
         </div>
     </div>
   </body>
+
+  <script src="/javascripts/angularApp.js"></script>
+  <!-- import controllers part -->
+  <script src="/javascripts/controllers/mainCtrl.js"></script>
+  <!-- import services part -->
+  <script src="/javascripts/services/API.js"></script>
 </html>

@@ -1,3 +1,6 @@
+
+/* MODE */
+var mode = 'TEST'; /*  PROD/TEST */
 var express = require('express');
 var router = express.Router();
 
@@ -8,6 +11,7 @@ var Balances = mongoose.model('Balance');
 var Orders = mongoose.model('Order');
 var Trades = mongoose.model('Trade');
 var Histories = mongoose.model('History');
+
 
 mongoose.connect(dbURI);
 /* webSocket Module */
@@ -31,6 +35,7 @@ connection.onopen = function (session) {
                     History.tradeID = args[i].data.tradeID;
                     History.date = args[i].data.date;
                     History.type = args[i].data.type;
+                    History.rate = args[i].data.rate;
                     History.amount = args[i].data.amount;
                     History.total = args[i].data.total;
 
@@ -61,7 +66,9 @@ connection.onclose = function () {
   console.log("Websocket connection closed");
 }
 
-connection.open();
+if (mode == 'PROD'){
+  connection.open();
+}
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -78,5 +85,34 @@ router.get('/history', function(req, res, next) {
   });
 });
 
+router.get('/backtest', function(req, res, next) {
+  Histories.find(function(err, histories) {
+      if (err) {
+          return console.error(err)
+      };
+      res.send(histories);
+  });
+});
+
+/* One time run for database consistency */
+router.get('/edit', function(req, res, next) {
+  Histories.find(function(err, histories) {
+      if (err) {
+          return console.error(err)
+      };
+      for (i = 0; i < histories.length; ++i){
+        var price = Number(histories[i].total)/Number(histories[i].amount);
+        var id = histories[i].tradeID;
+        Histories.update(
+             {tradeID: id},
+             {rate : price},
+             {multi:true},
+             function(err, numberAffected){
+               console.log(numberAffected + " has been changed!" + "count:" + i)
+               });
+      }
+      res.send('DONE!');
+  });
+});
 
 module.exports = router;
